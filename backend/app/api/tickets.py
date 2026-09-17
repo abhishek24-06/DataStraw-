@@ -48,6 +48,7 @@ def list_tickets(
     return tickets
 
 
+# Stats endpoint MUST come before /{ticket_id} to avoid "stats" being matched as a ticket_id
 @router.get("/stats", response_model=dict)
 def get_stats(db: Session = Depends(get_db)):
     return get_ticket_stats(db)

@@ -25,7 +25,7 @@ export default function Dashboard() {
   };
 
   const { tickets, loading, error, fetchTickets } = useTickets(params);
-  const { stats } = useTicketStats();
+  const { stats, loading: statsLoading, error: statsError } = useTicketStats();
 
   const hasFilters = search || statusFilter || priorityFilter;
 
@@ -57,6 +57,23 @@ export default function Dashboard() {
     );
   }
 
+  // Show stats error inline if stats fail to load
+  const statsDisplay = statsError ? (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StatCard title="Total Tickets" value="–" icon={<TicketIcon />} />
+      <StatCard title="Open" value="–" className="text-green-600" icon={<OpenIcon />} />
+      <StatCard title="In Progress" value="–" className="text-blue-600" icon={<ProgressIcon />} />
+      <StatCard title="Closed" value="–" className="text-gray-600" icon={<ClosedIcon />} />
+    </div>
+  ) : (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StatCard title="Total Tickets" value={stats.total} icon={<TicketIcon />} />
+      <StatCard title="Open" value={stats.open} className="text-green-600" icon={<OpenIcon />} />
+      <StatCard title="In Progress" value={stats.in_progress} className="text-blue-600" icon={<ProgressIcon />} />
+      <StatCard title="Closed" value={stats.closed} className="text-gray-600" icon={<ClosedIcon />} />
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -70,12 +87,18 @@ export default function Dashboard() {
       </div>
 
       <Card padding="sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Total Tickets" value={stats.total} icon={<TicketIcon />} />
-          <StatCard title="Open" value={stats.open} className="text-green-600" icon={<OpenIcon />} />
-          <StatCard title="In Progress" value={stats.in_progress} className="text-blue-600" icon={<ProgressIcon />} />
-          <StatCard title="Closed" value={stats.closed} className="text-gray-600" icon={<ClosedIcon />} />
-        </div>
+        {statsLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="bg-white rounded-lg border border-gray-100 p-4 animate-pulse">
+                <p className="text-sm text-gray-500">Loading...</p>
+                <p className="text-2xl font-bold text-gray-200">–</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          statsDisplay
+        )}
       </Card>
 
       <Card padding="sm">
@@ -187,7 +210,7 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ title, value, className = 'text-primary-600', icon }: { title: string; value: number; className?: string; icon: React.ReactNode }) {
+function StatCard({ title, value, className = 'text-primary-600', icon }: { title: string; value: number | string; className?: string; icon: React.ReactNode }) {
   return (
     <div className="bg-white rounded-lg border border-gray-100 p-4">
       <div className="flex items-center justify-between">

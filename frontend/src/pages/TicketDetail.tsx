@@ -150,7 +150,7 @@ export default function TicketDetail() {
 
           <Card>
             <CardHeader title="Notes & Activity" />
-            {ticket.notes.length === 0 ? (
+            {(!ticket.notes || ticket.notes.length === 0) ? (
               <EmptyState
                 title="No notes yet"
                 description="Add a note to track progress or communicate with the customer."
